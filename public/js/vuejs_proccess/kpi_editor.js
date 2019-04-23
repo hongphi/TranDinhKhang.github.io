@@ -1316,33 +1316,40 @@ Vue.component('kpi-config', {
                 cancelButtonText: "Hủy",
                 confirmButtonColor: "#DD6B55",
                 confirmButtonText: "Đồng ý",
-                closeOnConfirm: true
-            }, function () {
-                let jqxhr = that.update_kpi_with_score_affectability('active_kpi');
+                closeOnConfirm: false // khang note: không được bật chỗ này lên nếu muốn mở liên tiếp các sweetalert modal
+            }, function (accept) {
 
-                // UI
-                jqxhr.done(function (data, statusText, jqXHR) {
-                    if (jqXHR.status != 200) {
-                        swal(gettext('Not successful'), gettext('Cannot delay/active this kpi'), "error");
-                    }else {
-                        swal({
-                            type: 'success',
-                            title: gettext("Active KPI success"),
-                            showConfirmButton: false,
-                            timer: 3000,
-                        });
-                    }
-                });
-                jqxhr.fail(function (e) {
-                        if (e.responseJSON.message != "" || e.responseJSON.message != null || e.responseJSON.message != undefined) {
-                            swal(gettext('Not successful'), e.responseJSON.message, "error");
-                        }
-                        else {
+                if (accept === true) {
+                    let jqxhr = that.update_kpi_with_score_affectability('active_kpi');
+                    // UI
+                    jqxhr.done(function (data, statusText, jqXHR) {
+                        if (jqXHR.status != 200) {
                             swal(gettext('Not successful'), gettext('Cannot delay/active this kpi'), "error");
+                        } else {
+                            swal({
+                                type: 'success',
+                                title: gettext("Active KPI success"),
+                                showConfirmButton: false,
+                                timer: 3000,
+                            });
                         }
-                    }
-                );
+                    });
+                    jqxhr.fail(function (e) {
+                            // console.log(e)
+                            if (e.responseJSON.message !== undefined && e.responseJSON.message !== "" && e.responseJSON.message !== null) {
+                                swal(gettext('Not successful'), e.responseJSON.message || "Fuck you bitches", "error");
+                            } else {
+                                swal({
+                                    type: "error",
+                                    title: gettext('Not successful'),
+                                    text: gettext('Cannot delay/active this kpi'),
+                                    timer: 3000
+                                });
+                            }
+                        }
+                    );
 
+                }
 
             });
         },
